@@ -11,7 +11,7 @@ const Greensock = () => {
   const [rect, setRect] = useState({})
 
   useEffect(()=>{
-    gsap.to(boxRef.current, {x: mousePosition.x-rect.width/2, y: mousePosition.y-rect.height/2})
+    gsap.set(boxRef.current, {x: mousePosition.x-rect.width/2, y: mousePosition.y-rect.height/2})
   })
 
   useEffect(()=>{
@@ -19,8 +19,8 @@ const Greensock = () => {
   },[])
 
   return (
-    <div id="greensock-examples">
-      <div className="box" ref={boxRef}>
+    <div className="greensock-example">
+      <div className="circle" ref={boxRef}>
         {mousePosition.x}, {mousePosition.y}
       </div>
     </div>

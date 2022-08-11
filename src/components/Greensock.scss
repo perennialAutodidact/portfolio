@@ -1,9 +1,19 @@
-#greensock-examples {
+.greensock-example {
     min-height: 100vh;
+    background-color: #eaeaea;
 
-    .box{
+    position: relative;
+
+    .circle {
         background-color: teal;
-        height:100px;
-        width: 100px;
+        border-radius: 50%;
+        height:25px;
+        width: 25px;
+
+        position: absolute;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
-}
+}   

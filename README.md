@@ -53,10 +53,21 @@
 #### Solar panel energy generation
 https://developer-v4.enphase.com
 
+## Database
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+### Timeline
+
+|Field name|Datatype|Required|
+|-|-|-|
+|title|string|true|
+|description|string|true|
+|year_id|FK -> timeline_year|true|
+|image_url|string|false|
+
+
 
 ## Getting Started
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 First, run the development server:
 

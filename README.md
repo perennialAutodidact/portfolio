@@ -46,6 +46,7 @@
 ### Book recommendations
 
 ### Resources
+Build an interface for adding resources to the database
 #### ADHD / mental health
 #### D&D
 #### Coding

@@ -5,7 +5,7 @@ import {
   FileUploadRoot,
   FileUploadList,
   FileUploadDropzone,
-} from "@/components/ui/file-upload";
+} from "@/app/components/ui/file-upload";
 
 const DragDropUploader = () => {
   const handleFileDrop: DragEventHandler = (event: DragEvent) => {

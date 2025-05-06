@@ -2,12 +2,12 @@ import React from "react";
 import DragDropUploader from "@/app/components/DragDropUploader";
 import { Box } from "@chakra-ui/react";
 
-const AddEvent: React.FunctionComponent = () => {
-    return (
-        <Box height="100vh" width="100%">
-            <DragDropUploader />
-        </Box>
-    );
+const Events: React.FunctionComponent = () => {
+  return (
+    <Box height="100vh" width="100%" display="flex" justifyContent="center">
+      <DragDropUploader />
+    </Box>
+  );
 };
 
-export default AddEvent;
+export default Events;

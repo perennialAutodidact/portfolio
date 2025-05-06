@@ -1,11 +1,12 @@
-import { Box, Flex, Icon } from "@chakra-ui/react";
+"use client";
+
+import { Box, Flex } from "@chakra-ui/react";
 import { DragEvent, DragEventHandler } from "react";
-import { LuCalendarArrowUp } from "react-icons/lu";
 import {
   FileUploadRoot,
   FileUploadList,
   FileUploadDropzone,
-} from "@/components/ui/file-upload";
+} from "@/app/components/ui/file-upload";
 
 const DragDropUploader = () => {
   const handleFileDrop: DragEventHandler = (event: DragEvent) => {
@@ -20,6 +21,7 @@ const DragDropUploader = () => {
             <FileUploadDropzone
               label="Drop files here to upload to Google Calendar"
               description=".isc files only"
+              padding="2rem"
             />
             <FileUploadList />
           </FileUploadRoot>

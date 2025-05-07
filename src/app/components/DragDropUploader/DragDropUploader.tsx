@@ -8,10 +8,7 @@ import {
   FileUploadDropzone,
 } from "@/app/components/ui/file-upload";
 
-const DragDropUploader = () => {
-  const handleFileDrop: DragEventHandler = (event: DragEvent) => {
-    console.log(event);
-  };
+const DragDropUploader = ({handleFileDrop}) => {
 
   return (
     <section onDrop={handleFileDrop}>

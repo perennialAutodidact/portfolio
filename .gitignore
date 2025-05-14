@@ -49,3 +49,4 @@ yarn-error.log*
 
 # Google
 googleOAuth*
+firebase-creds.json

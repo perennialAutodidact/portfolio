@@ -86,18 +86,18 @@ function getAllowedHeaders(req: Request, allowed?: string | string[]) {
   return headers
 }
 
-const ALLOWED_ORIGINS = ['http://localhost:3000'];
-const ALLOWED_HEADERS = ['Access-Control-Allow-Origin', 'Access-Control-Allow-Methods',]
+// const ALLOWED_ORIGINS = ['http://localhost:3000'];
+// const ALLOWED_HEADERS = ['Access-Control-Allow-Origin', 'Access-Control-Allow-Methods',]
 
-function setCORSHeaders(res: Response) {
-  res?.headers.set('Access-Control-Allow-Origin', 'http://localhost:3000');
-  res?.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res?.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res?.headers.set('Access-Control-Allow-Credentials', 'true')
-}
+// function setCORSHeaders(res: Response) {
+//   res?.headers.set('Access-Control-Allow-Origin', 'http://localhost:3000');
+//   res?.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+//   res?.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+//   res?.headers.set('Access-Control-Allow-Credentials', 'true')
+// }
 
 export function withCORS<NextResponse>(
-  handler: (req: NextRequest) => Promise<Response>,
+  handler: (req: NextRequest) => Promise<NextResponse>,
   options?: CorsOptions,
 ) {
   return async (req: NextRequest) => {

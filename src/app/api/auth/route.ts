@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { google } from 'googleapis';
-import { setCookies } from "@/app/actions/setCookies";
+// import { setCookies } from "@/app/actions/setCookies";
 import { cert, getApps, initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import firebaseCreds from './firebase-creds.json'
@@ -68,5 +68,6 @@ export const POST = withCORS(POSTHandler, {
   preflightContinue: true,
 });
 
-export const OPTIONS = withCORS(() => new Response(null, { status: 204 }),
+export const OPTIONS = withCORS(async () => new NextResponse(null, { status: 204 }),
   { origin: getAllowedOriginsForEnv(process.env.NODE_ENV), credentials: true,})
+

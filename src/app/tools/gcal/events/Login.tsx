@@ -27,22 +27,22 @@ const Login = () => {
             const refreshToken = result.user.refreshToken;
 
             setUser(result.user)
-
-            await fetch('/api/auth', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${idToken}`
-                },
-                body: JSON.stringify({ accessToken, refreshToken }),
-                credentials: 'include',
-            })
+             window.location.href = `/api/auth?token=${idToken}`
+        //     await fetch('/api/auth', {
+        //         method: 'GET',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //             Authorization: `Bearer ${idToken}`
+        //         },
+        //         body: JSON.stringify({ accessToken, refreshToken }),
+        //         credentials: 'include',
+        //     })
 
         } catch (error: any) {
-            setError(error);
+        //     setError(error);
 
-        } finally {
-            setLoading(false);
+        // } finally {
+        //     setLoading(false);
         }
     };
 

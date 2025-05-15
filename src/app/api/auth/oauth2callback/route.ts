@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { oauth2Client } from "../oauth2Client";
-import { withCORS } from "@/lib/middleware/cors";
+import { createOptionsResponse } from "@/lib/helpers/createOptionsHTTPResponse";
 
 async function GETHandler(req: NextRequest) {
-
+  console.log('OAUTH2CALLBACK FIRED', req)
   const { searchParams } = new URL(req.url);
   const code = searchParams.get('code') || ''
   const state = searchParams.get('state')
@@ -11,10 +11,6 @@ async function GETHandler(req: NextRequest) {
   const { email } = JSON.parse(state || '{}')
 
   const tokenRes = await oauth2Client.getToken(code);
-  if (tokenRes) return NextResponse.json({ message: JSON.stringify(tokenRes) })
-  return NextResponse.json({message: `Invalid token: ${tokenRes}`})
-
-
 
   // oauth2Client.setCredentials(token)
 
@@ -28,7 +24,10 @@ async function GETHandler(req: NextRequest) {
   //   Path: '/',
   // }])
 
+  if (tokenRes) return NextResponse.json({ message: JSON.stringify(tokenRes) })
+  return NextResponse.json({message: `Invalid token: ${tokenRes}`})
 }
 
 
-export const GET = withCORS(GETHandler)
+export const GET = GETHandler;
+export const OPTIONS = createOptionsResponse();

@@ -23,26 +23,26 @@ const Login = () => {
             })
             const result = await signInWithPopup(auth, provider)
             const accessToken = GoogleAuthProvider.credentialFromResult(result)?.accessToken;
+
             const idToken = await result.user.getIdToken();
             const refreshToken = result.user.refreshToken;
 
             setUser(result.user)
-             window.location.href = `/api/auth?token=${idToken}`
-        //     await fetch('/api/auth', {
-        //         method: 'GET',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //             Authorization: `Bearer ${idToken}`
-        //         },
-        //         body: JSON.stringify({ accessToken, refreshToken }),
-        //         credentials: 'include',
-        //     })
+            await fetch('/api/auth', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${idToken}`
+                },
+                body: JSON.stringify({ accessToken, refreshToken }),
+                credentials: 'include',
+            })
 
         } catch (error: any) {
-        //     setError(error);
+            //     setError(error);
 
-        // } finally {
-        //     setLoading(false);
+            // } finally {
+            //     setLoading(false);
         }
     };
 

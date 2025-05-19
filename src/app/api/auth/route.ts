@@ -48,7 +48,7 @@ async function GETHandler(req: NextRequest, res: NextResponse) {
 
   const url = oauth2Client.generateAuthUrl({
     access_type: 'offline',
-    scope: [JSON.stringify(process.env.GOOGLE_CALENDAR_AUTH_URL)],
+    scope: [process.env.GOOGLE_CALENDAR_AUTH_URL || ''],
     state: JSON.stringify({ email }),
     prompt: 'consent',
     redirect_uri: process.env.GOOGLE_LOGIN_REDIRECT_URL,

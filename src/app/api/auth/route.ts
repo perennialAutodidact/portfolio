@@ -25,17 +25,35 @@ const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_LOGIN_REDIRECT_URL,
 )
 
-async function GETHandler(req: NextRequest, res: NextResponse) {
-  const params = new URLSearchParams(req.url.split('?')[1]);
-  const idToken = params.get('token')
-  // const authHeader = req.headers.get('authorization');
-  // const idToken = authHeader?.split('Bearer ')[1];
+// config CORS
+const getCorsHeaders = (origin: string) => {
+  const headers = {
+    "Access-Control-Allow-Methods": process.env.ALLOWED_HTTP_METHODS,
+     "Access-Control-Allow-Headers": process.env.ALLOWED_HTTP_HEADERS,
+    "Access-Control-Allow-Origin": process.env.DOMAIN_URL,
+  }
+
+  if(!process.env.ALLOWED_ORIGIN || !origin) return headers;
+
+  const allowedOrigins = process.env.ALLOWED_ORIGIN.split(',')
+  if(allowedOrigins.includes('*')) {
+    headers['Access-Control-Allow-Origin'] = '*';
+  } else if (allowedOrigins.includes(origin)) {
+    headers['Access-Control-Allow-Origin'] = origin;
+  }
+
+  return headers;
+}
+
+async function POSTHandler(req: NextRequest, res: NextResponse) {
+  const authHeader = req.headers.get('authorization');
+  const idToken = authHeader?.split('Bearer ')[1];
 
   if (!idToken) {
     return NextResponse.json({ error: 'Unauthorized - No ID token provided', status: 401 })
   }
-
   const decodedToken = await getAuth().verifyIdToken(idToken)
+  console.log({decodedToken})
   if (!decodedToken) return NextResponse.json({ message: decodedToken })
   const { email } = decodedToken;
 
@@ -56,9 +74,7 @@ async function GETHandler(req: NextRequest, res: NextResponse) {
     client_id: process.env.GOOGLE_CLIENT_ID,
   })
 
-  console.log({url})
   if (url) {
-    console.log('REDIRECT FROM /AUTH')
     const response = NextResponse.redirect(url.toString(), 307);
     response.headers.set('Access-Control-Allow-Origin', 'http://localhost:3000');
     response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -70,8 +86,13 @@ async function GETHandler(req: NextRequest, res: NextResponse) {
   return NextResponse.json({ message: 'Invalid token' }, { status: 403 })
 }
 
-export const GET = GETHandler;
-export const OPTIONS = createOptionsResponse();
+export const POST = POSTHandler;
+export const OPTIONS = async (request:NextRequest) => {
+  return NextResponse.json({}, {
+    status:200, 
+    headers: getCorsHeaders(request.headers.get('origin') || ''),
+  })
+};
 
 // export const POST = withCORS(POSTHandler, {
 //   origin: getAllowedOriginsForEnv(process.env.NODE_ENV),

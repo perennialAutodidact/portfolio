@@ -2,42 +2,40 @@ import { NextRequest, NextResponse } from 'next/server'
  
 const allowedOrigins = JSON.parse(process.env.ALLOWED_ORIGINS || '{ "development": "http://localhost:3000}", "production": "" }')
  
-const corsOptions = {
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-}
- 
-export function middleware(request: NextRequest) {
-  // Check the origin from the request
-  const origin = request.headers.get('origin') ?? ''
-  const isAllowedOrigin = allowedOrigins.includes(origin)
- 
-  // Handle preflighted requests
-  const isPreflight = request.method === 'OPTIONS'
- 
-  if (isPreflight) {
-    const preflightHeaders = {
-      ...(isAllowedOrigin && { 'Access-Control-Allow-Origin': origin }),
-      ...corsOptions,
-    }
-    return NextResponse.json({}, { headers: preflightHeaders })
-  }
- 
-  // Handle simple requests
+const corsOptions: {
+  allowedMethods: string[];
+  allowedOrigins: string[];
+  allowedHeaders: string[];
+  exposedHeaders: string[];
+  maxAge?: number;
+  credentials: boolean;
+} = {
+  allowedMethods: (process.env?.ALLOWED_METHODS || "").split(","),
+  allowedOrigins: (process.env?.ALLOWED_ORIGIN || "").split(","),
+  allowedHeaders: (process.env?.ALLOWED_HEADERS || "").split(","),
+  exposedHeaders: (process.env?.EXPOSED_HEADERS || "").split(","),
+  maxAge: process.env?.MAX_AGE && parseInt(process.env?.MAX_AGE) || undefined, // 60 * 60 * 24 * 30, // 30 days
+  credentials: process.env?.CREDENTIALS == "true",
+};
+
+export async function middleware(request: NextRequest) {
   const response = NextResponse.next()
- 
-  console.log('LOGGING ORIGIN FROM MIDDLEWARE', origin)
-  if (isAllowedOrigin) {
+
+  const origin = request.headers.get('origin')??'';
+
+  if(corsOptions.allowedOrigins.includes('*') || cors.allowedOrigins.includes(origin){
     response.headers.set('Access-Control-Allow-Origin', origin)
   }
- 
-  Object.entries(corsOptions).forEach(([key, value]) => {
-    response.headers.set(key, value)
-  })
- 
+
+  response.headers.set("Access-Control-Allow-Credentials", corsOptions.credentials.toString());
+  response.headers.set("Access-Control-Allow-Methods", corsOptions.allowedMethods.join(","));
+  response.headers.set("Access-Control-Allow-Headers", corsOptions.allowedHeaders.join(","));
+  response.headers.set("Access-Control-Expose-Headers", corsOptions.exposedHeaders.join(","));
+  response.headers.set("Access-Control-Max-Age", corsOptions.maxAge?.toString() ?? "");
+
   return response
-}
- 
+} 
+
 export const config = {
-  matcher: '/api/:path*',
+  matcher: '/api/:path*'
 }

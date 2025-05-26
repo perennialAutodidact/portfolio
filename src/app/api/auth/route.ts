@@ -27,16 +27,23 @@ const oauth2Client = new google.auth.OAuth2(
 
 // config CORS
 const getCorsHeaders = (origin: string) => {
+  if (
+    !process.env.ALLOWED_HTTP_HEADERS
+    || !process.env.ALLOWED_HTTP_METHODS
+    || !process.env.DOMAIN_URL
+  ) return;
+
   const headers = {
     "Access-Control-Allow-Methods": process.env.ALLOWED_HTTP_METHODS,
-     "Access-Control-Allow-Headers": process.env.ALLOWED_HTTP_HEADERS,
+    "Access-Control-Allow-Headers": process.env.ALLOWED_HTTP_HEADERS,
     "Access-Control-Allow-Origin": process.env.DOMAIN_URL,
   }
 
-  if(!process.env.ALLOWED_ORIGIN || !origin) return headers;
+  console.log({headers})
+  if (!process.env.ALLOWED_ORIGIN || !origin) return headers;
 
   const allowedOrigins = process.env.ALLOWED_ORIGIN.split(',')
-  if(allowedOrigins.includes('*')) {
+  if (allowedOrigins.includes('*')) {
     headers['Access-Control-Allow-Origin'] = '*';
   } else if (allowedOrigins.includes(origin)) {
     headers['Access-Control-Allow-Origin'] = origin;
@@ -53,7 +60,7 @@ async function POSTHandler(req: NextRequest, res: NextResponse) {
     return NextResponse.json({ error: 'Unauthorized - No ID token provided', status: 401 })
   }
   const decodedToken = await getAuth().verifyIdToken(idToken)
-  console.log({decodedToken})
+  console.log({ decodedToken })
   if (!decodedToken) return NextResponse.json({ message: decodedToken })
   const { email } = decodedToken;
 
@@ -74,6 +81,7 @@ async function POSTHandler(req: NextRequest, res: NextResponse) {
     client_id: process.env.GOOGLE_CLIENT_ID,
   })
 
+  console.log({ url })
   if (url) {
     const response = NextResponse.redirect(url.toString(), 307);
     response.headers.set('Access-Control-Allow-Origin', 'http://localhost:3000');
@@ -87,9 +95,10 @@ async function POSTHandler(req: NextRequest, res: NextResponse) {
 }
 
 export const POST = POSTHandler;
-export const OPTIONS = async (request:NextRequest) => {
+export const OPTIONS = async (request: NextRequest) => {
+  const headers = getCorsHeaders(request.headers.get('origin' || '')
   return NextResponse.json({}, {
-    status:200, 
+    status: 200,
     headers: getCorsHeaders(request.headers.get('origin') || ''),
   })
 };

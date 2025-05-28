@@ -39,7 +39,7 @@ const getCorsHeaders = (origin: string) => {
     "Access-Control-Allow-Origin": process.env.DOMAIN_URL,
   }
 
-  console.log({headers})
+  console.log({ headers })
   if (!process.env.ALLOWED_ORIGIN || !origin) return headers;
 
   const allowedOrigins = process.env.ALLOWED_ORIGIN.split(',')
@@ -81,14 +81,8 @@ async function POSTHandler(req: NextRequest, res: NextResponse) {
     client_id: process.env.GOOGLE_CLIENT_ID,
   })
 
-  console.log({ url })
   if (url) {
-    const response = NextResponse.redirect(url.toString(), 307);
-    response.headers.set('Access-Control-Allow-Origin', 'http://localhost:3000');
-    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    response.headers.set('Access-Control-Allow-Credentials', 'true');
-    return response;
+    return NextResponse.json({ url });
   }
 
   return NextResponse.json({ message: 'Invalid token' }, { status: 403 })
@@ -96,10 +90,11 @@ async function POSTHandler(req: NextRequest, res: NextResponse) {
 
 export const POST = POSTHandler;
 export const OPTIONS = async (request: NextRequest) => {
-  const headers = getCorsHeaders(request.headers.get('origin' || '')
+  console.log("LOGGING FROM THE OPTIONS HANDLER")
+  const headers = getCorsHeaders(request.headers.get('origin') || '');
   return NextResponse.json({}, {
     status: 200,
-    headers: getCorsHeaders(request.headers.get('origin') || ''),
+    headers,
   })
 };
 

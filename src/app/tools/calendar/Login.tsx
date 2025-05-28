@@ -7,6 +7,7 @@ import {
   User,
   UserCredential,
 } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
 import { auth, authProvider } from '@/app/firebase'
 import { SiGooglecalendar } from "react-icons/si";
 import { Box, Button, Container, Text, Heading } from '@chakra-ui/react';
@@ -16,6 +17,7 @@ const Login = () => {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const fetchTokens = async () => {
     setLoading(true);
@@ -23,13 +25,15 @@ const Login = () => {
     try {
       const { user } = await signInWithPopup(auth, authProvider);
       const idToken = await user.getIdToken();
-      await fetch('/api/auth', {
+      const response = await fetch('/api/auth', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${idToken}`,
         },
       })
+      const { url } = await response.json();
+      router.push(url);
     } catch (error: any) {
       //     setError(error);
       console.error(error)
@@ -39,7 +43,7 @@ const Login = () => {
   };
 
   const handleClick = async () => {
-    fetchTokens();
+    // fetchTokens();
   };
 
   return (

@@ -1,20 +1,16 @@
 "use client";
 import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
-import ChakraUIProvider from "@/app/components/Providers/ChakraUIProvider";
-import AnimationProvider from "@/app/components/Providers/AnimationProvider";
+import AnimationProvider from "./AnimationProvider";
 import React from "react";
 
 const AllProviders = ({
-    children,
+  children,
 }: Readonly<{ children: React.ReactNode }>) => {
-    return (
-        <ChakraProvider value={defaultSystem}>
-            {/* // <ChakraUIProvider> */}
-            {/* <AnimationProvider>{children}</AnimationProvider> */}
-            {children}
-        </ChakraProvider>
-        // </ChakraUIProvider>
-    );
+  return (
+    <ChakraProvider value={defaultSystem}>
+      <AnimationProvider>{children}</AnimationProvider>
+    </ChakraProvider>
+  );
 };
 
 export default AllProviders;

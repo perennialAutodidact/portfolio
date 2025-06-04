@@ -1,75 +1,54 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react'
+import React, { useState } from "react";
+import { signIn } from "next-auth/react";
 import {
   GoogleAuthProvider,
   signInWithPopup,
   User,
   UserCredential,
-} from 'firebase/auth';
-import { useRouter } from 'next/navigation';
-import { auth, authProvider } from '@/app/firebase'
+} from "firebase/auth";
+import { useRouter } from "next/navigation";
+import { auth, authProvider } from "@/app/firebase";
 import { SiGooglecalendar } from "react-icons/si";
-import { Box, Button, Container, Text, Heading } from '@chakra-ui/react';
-import { google } from 'googleapis';
+import { Box, Button, Container, Text, Heading } from "@chakra-ui/react";
 
 const Login = () => {
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const fetchTokens = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const { user } = await signInWithPopup(auth, authProvider);
-      const idToken = await user.getIdToken();
-      const response = await fetch('/api/auth', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${idToken}`,
-        },
-      })
-      const { url } = await response.json();
-      router.push(url);
-    } catch (error: any) {
-      //     setError(error);
-      console.error(error)
-      // } finally {
-      //     setLoading(false);
-    }
-  };
-
   const handleClick = async () => {
-    // fetchTokens();
+    console.log("CLICKED");
+    signIn("google", { redirectTo: "/tools/calendar" });
   };
 
   return (
-    <Container display={'flex'} justifyContent={'center'}>
+    <Container display={"flex"} justifyContent={"center"}>
       {loading ? (
         <Text>Loading...</Text>
       ) : (
         <Box>
           {user ? (
-            <Heading as='h3'>Logged in as: {user.email}</Heading>
+            <Heading as="h3">Logged in as: {user.email}</Heading>
           ) : (
             <Button
               padding={15}
-              colorPalette={'teal'}
-              color={'whiteAlpha.900'}
+              colorPalette={"teal"}
+              color={"whiteAlpha.900"}
               fontSize={16}
-              fontWeight={'bold'}
+              fontWeight={"bold"}
               onClick={handleClick}
             >
-              <SiGooglecalendar /><Text>Login with Google</Text>
+              <SiGooglecalendar />
+              Sign In
             </Button>
           )}
         </Box>
       )}
     </Container>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

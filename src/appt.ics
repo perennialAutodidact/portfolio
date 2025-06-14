@@ -1,0 +1,70 @@
+BEGIN:VCALENDAR
+PRODID:-//zoom.us//iCalendar Event//EN
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+CLASS:PUBLIC
+BEGIN:VTIMEZONE
+TZID:America/Chicago
+LAST-MODIFIED:20250410T142247Z
+TZURL:https://www.tzurl.org/zoneinfo-outlook/America/Chicago
+X-LIC-LOCATION:America/Chicago
+BEGIN:DAYLIGHT
+TZNAME:CDT
+TZOFFSETFROM:-0600
+TZOFFSETTO:-0500
+DTSTART:19700308T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZNAME:CST
+TZOFFSETFROM:-0500
+TZOFFSETTO:-0600
+DTSTART:19701101T020000
+RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+DTSTAMP:20250606T182621Z
+DTSTART;TZID=America/Chicago:20250614T120000
+DTEND;TZID=America/Chicago:20250614T150000
+SUMMARY:Boundary IQ
+UID:20250506T182621Z-81721598879@fe80:0:0:0:78f6:94ff:fe42:bc56eth0
+TZID:America/Chicago
+DESCRIPTION:Topic: Boundary IQ\nDescription: Creating and maintaining hea
+ lthy boundaries can be a challenging task. Some people grew up in enviro
+ nments where setting boundaries was not emphasized or valued\, resulting
+  in struggles to establish boundaries in adulthood. Fear of conflict\, a
+  tendency to prioritize others' approval\, or past experiences of invali
+ dation or disrespect can also contribute to difficulties in setting and 
+ maintaining boundaries. Discuss the role of boundaries in relationships 
+ and learn how to implement healthy boundaries in this one-hour seminar s
+ ponsored by Polk County\, Iowa.\n\nMeet the Instructor: Jaymi Dormaier i
+ s a Licensed Master Social Worker with 10+ years of experience in the me
+ ntal health field. In Jaymi's career as a social  worker and therapist\,
+  she has worked with diverse populations focusing on anxiety\, depressio
+ n\, grief\, trauma\, foster care\, adoption\, homelessness\, and addicti
+ on. She is passionate about helping others live a life they love.\n\nJoi
+ n from PC\, Mac\, iPad\, or Android:\nhttps://us06web.zoom.us/w/81721598
+ 879?tk=61xMSIvqWM6yPJN_GPUfG1URllQl_m728xVS8-O6K7U.DQcAAAATBvyjnxZuM2U0Y
+ kp1R1JZU1ZuSmt0Q0YzRmVnAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&uuid=WN_j
+ Cw9UItoTaS1YKbyB09Z4g\n\nPhone one-tap:\n+12532158782\,\,81721598879# US
+  (Tacoma)\n+13462487799\,\,81721598879# US (Houston)\n\nJoin via audio:\
+ n+1 253 215 8782 US (Tacoma)\n+1 346 248 7799 US (Houston)\n+1 669 444 9
+ 171 US\n+1 669 900 6833 US (San Jose)\n+1 719 359 4580 US\n+1 253 205 04
+ 68 US\n+1 312 626 6799 US (Chicago)\n+1 360 209 5623 US\n+1 386 347 5053
+  US\n+1 507 473 4847 US\n+1 564 217 2000 US\n+1 646 931 3860 US\n+1 689 
+ 278 1000 US\n+1 929 205 6099 US (New York)\n+1 301 715 8592 US (Washingt
+ on DC)\n+1 305 224 1968 US\n+1 309 205 3325 US\nWebinar ID: 817 2159 887
+ 9\nInternational numbers available: https://us06web.zoom.us/u/kdHXDv4XF7
+ \n\n\n
+LOCATION:https://us06web.zoom.us/w/81721598879?tk=61xMSIvqWM6yPJN_GPUfG1U
+ RllQl_m728xVS8-O6K7U.DQcAAAATBvyjnxZuM2U0Ykp1R1JZU1ZuSmt0Q0YzRmVnAAAAAAA
+ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&uuid=WN_jCw9UItoTaS1YKbyB09Z4g
+BEGIN:VALARM
+TRIGGER:-PT10M
+ACTION:DISPLAY
+DESCRIPTION:Reminder
+END:VALARM
+END:VEVENT
+END:VCALENDAR

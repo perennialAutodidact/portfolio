@@ -95,7 +95,7 @@ const FileUploadItem = React.forwardRef<HTMLLIElement, FileUploadItemProps>(
         )}
       </ChakraFileUpload.Item>
     );
-  }
+  },
 );
 
 interface FileUploadListProps
@@ -163,7 +163,7 @@ export const FileInput = React.forwardRef<HTMLButtonElement, FileInputProps>(
         </Button>
       </ChakraFileUpload.Trigger>
     );
-  }
+  },
 );
 
 export const FileUploadLabel = ChakraFileUpload.Label;

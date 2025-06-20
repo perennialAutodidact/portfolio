@@ -6,7 +6,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import { Box, Button, Flex } from "@chakra-ui/react";
+import { Box, Button, Flex, useFileUploadContext } from "@chakra-ui/react";
 import { DragEvent, DragEventHandler } from "react";
 import {
   FileUploadRoot,
@@ -16,11 +16,12 @@ import {
 import { useCalendarStore } from "@/app/tools/calendar/store";
 
 const DragDropUploader = () => {
-  const [files, setFiles] = useState<File[]>([]);
-  const { reminders } = useCalendarStore();
+  const { addFile, setStatusMessage, messages, files, reminders } =
+    useCalendarStore();
+  const fileUploadContext = useFileUploadContext();
 
   const handleDrop: DragEventHandler<HTMLElement> = (e) => {
-    setFiles(files.concat(Array.from(e.dataTransfer.files)));
+    addFile(Array.from(e.dataTransfer.files));
   };
 
   const uploadFiles = async () => {
@@ -37,13 +38,20 @@ const DragDropUploader = () => {
         method: "POST",
         body: formData,
       });
+      if (response.ok) {
+        const { message, googleEvent } = await response.json();
+        setStatusMessage("success", message);
+        fileUploadContext.clearFiles();
+      } else {
+        throw new Error(response.statusText);
+      }
     } catch (error) {
       console.error(error);
     }
   };
 
   return (
-    <Box height="100vh" width={"100%"}>
+    <Box width={"100%"}>
       <Flex justifyContent="center" alignItems="center">
         <FileUploadRoot maxFiles={5} color={"purple.800"}>
           <FileUploadDropzone
@@ -56,15 +64,36 @@ const DragDropUploader = () => {
             width={"100%"}
           />
           <FileUploadList />
-          {files ? (
-            <Button
-              paddingX={15}
-              colorPalette={"teal"}
-              onClick={() => uploadFiles()}
-            >
-              Upload
-            </Button>
-          ) : null}
+          <Flex gap={16} width="100%">
+            {files ? (
+              <Button
+                paddingX={15}
+                colorPalette={"purple"}
+                onClick={() => uploadFiles()}
+                width={{
+                  sm: "100%",
+                  lg: "33%",
+                }}
+              >
+                Upload
+              </Button>
+            ) : null}
+            {messages.success || messages.error ? (
+              <Box
+                width={{
+                  sm: "100%",
+                  lg: "33%",
+                }}
+                backgroundColor={messages.success ? "green.200" : "red.200"}
+                color={messages.success ? "green.800" : "red.800"}
+                p={3}
+                borderRadius={8}
+              >
+                {messages.success ? <Box>{messages.success}</Box> : null}
+                {messages.error ? <Box>{messages.error}</Box> : null}
+              </Box>
+            ) : null}
+          </Flex>
         </FileUploadRoot>
       </Flex>
     </Box>

@@ -14,7 +14,7 @@ export const ShapeRenderer = ({ path, color }: ShapeRendererProps) => {
 
   // create an interpolator that maps from the current shape (at t=0) to the new provided path (at t=1)
   const pathInterpolator = useMemo(
-    () => interpolate(currD.current, path),
+    () => interpolate(currD.current, path, { maxSegmentLength: 2 }),
     [path],
   );
 

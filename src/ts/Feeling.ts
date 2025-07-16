@@ -33,7 +33,7 @@ export type CoreFeelingDatum = {
   name: string;
   color: ColorHSL;
   angle: number;
-  secondaryFeelings: SecondaryFeeling[];
+  secondaryFeelingsPie: d3.PieArcDatum<SecondaryFeelingDatumWithLeaves>[];
 };
 
 export type SecondaryFeelingDatum = {
@@ -41,6 +41,9 @@ export type SecondaryFeelingDatum = {
   color: ColorHSL;
   angle: number;
   leafFeelings: LeafFeeling[];
+};
+export type SecondaryFeelingDatumWithLeaves = SecondaryFeelingDatum & {
+  leafFeelingsPie: d3.PieArcDatum<LeafFeelingDatum>[];
 };
 
 export type LeafFeelingDatum = {

@@ -64,9 +64,10 @@ export const feelingsWheel: FeelingsWheel = {
       },
       {
         name: "Threatened",
+        color: { h: 0, s: 0, l: 0 },
         leafFeelings: [
           { name: "Exposed", color: { h: 0, s: 0, l: 0 } },
-          { name: "Intimidated", leafFeelings: null },
+          { name: "Intimidated", color: { h: 0, s: 0, l: 0 } },
         ],
       },
     ],

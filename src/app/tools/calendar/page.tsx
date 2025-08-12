@@ -25,8 +25,6 @@ const Events: React.FunctionComponent = () => {
 
   const { addReminder, deleteReminder, reminders } = useCalendarStore();
 
-  console.log({ reminders });
-
   useEffect(() => {
     if (!window) return;
 

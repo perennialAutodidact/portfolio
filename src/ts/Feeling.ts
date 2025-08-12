@@ -1,15 +1,47 @@
+export type FeelingsCategory = "comfortable" | "uncomfortable";
+
+export type UncomfortableFeelingNames =
+  | "Afraid"
+  | "Alone"
+  | "Angry"
+  | "Bad"
+  | "Dislike"
+  | "Embarrassed"
+  | "Sad";
+
+export type ComfortableFeelingNames =
+  | "Accepted"
+  | "Confident"
+  | "Excited"
+  | "Interested"
+  | "Loving"
+  | "Strong";
+
 export type CoreFeelingName =
-  | "sad"
-  | "angry"
-  | "disgusted"
-  | "happy"
-  | "fearful"
-  | "bad";
+  | UncomfortableFeelingNames
+  | ComfortableFeelingNames;
+
+export type ColorThemeNames = "default" | "tritanomoly";
 
 export type ColorHSL = {
   h: number;
   s: number;
   l: number;
+};
+
+export type ColorHex = `#${string}`;
+
+export type ColorPalettes = {
+  comfortable: {
+    [key in ColorThemeNames]: {
+      [key in ComfortableFeelingNames]: ColorHex;
+    };
+  };
+  uncomfortable: {
+    [key in ColorThemeNames]: {
+      [key in UncomfortableFeelingNames]: ColorHex;
+    };
+  };
 };
 
 export type LeafFeeling = {
@@ -52,9 +84,9 @@ export type LeafFeelingDatum = {
   angle: number;
 };
 
-export type FeelingsWheel = {
+export type FeelingsWheelData = {
   [key in CoreFeelingName]?: {
-    name: string;
+    name: CoreFeelingName;
     baseColor: ColorHSL;
     secondaryFeelings: SecondaryFeeling[];
   };

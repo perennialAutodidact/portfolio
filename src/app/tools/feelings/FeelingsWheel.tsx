@@ -1,25 +1,19 @@
 "use client";
 
-import { Fragment, useMemo, useRef, useEffect, useState } from "react";
+import { useMemo, useRef, useEffect, useState } from "react";
 import { useWindowSize } from "usehooks-ts";
 import * as d3 from "d3";
-import chroma from "chroma-js";
-import throttle from "lodash.throttle";
 import {
   coreFeelingsData,
-  formatHSLString,
-  generateLabels,
   getFeelingPaths,
   getSVGMarginFromBreakpoint,
 } from "./helpers";
+import { FEELINGS_FONT_COLORS } from "./utilities/constants";
 import {
-  CoreFeeling,
   CoreFeelingDatum,
-  SecondaryFeelingDatum,
-  LeafFeelingDatum,
-  SecondaryFeelingDatumWithLeaves,
+  FeelingsCategory,
+  FeelingsWheelData,
 } from "@/ts/Feeling";
-import { ShapeRenderer } from "@/app/components/ShapeRenderer";
 import useBreakpoint from "@/hooks/useBreakpoint";
 
 const FeelingsWheel = () => {
@@ -33,6 +27,22 @@ const FeelingsWheel = () => {
     height,
     width,
   });
+  const [feelings, setFeelings] = useState<FeelingsWheelData | {}>({});
+  const [feelingsCategory, setFeelingsCategory] =
+    useState<FeelingsCategory>("comfortable");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const searchParams = new URLSearchParams({
+        colorTheme: "default",
+        feelingsCategory,
+      });
+      const res = await fetch("/api/feelings?" + searchParams.toString());
+      const data = await res.json();
+      setFeelings(data);
+    };
+    fetchData();
+  }, []);
 
   const MARGIN = getSVGMarginFromBreakpoint(breakpoint);
   const SVGDimensions = useMemo(
@@ -55,37 +65,42 @@ const FeelingsWheel = () => {
     [height, width],
   );
   const maxDim = Math.max(width, height);
-  const minDim = Math.min(width, height);
   const offsetX = (maxDim - width) / 2;
-  const offsetY = (maxDim - height) / 2;
+  const offsetY = (maxDim - height) / 2 - 100;
 
   const coreFeelingRadius = useMemo(
-    () => Math.min(width, height) / 6 - MARGIN.top / 2,
+    () => Math.min(width, height) / 5 - MARGIN.top / 2,
     [width, height],
   );
   const secondaryFeelingRadius = coreFeelingRadius * 2;
   const leafFeelingRadius = secondaryFeelingRadius * 1.5;
 
   const fontScale = useMemo(
-    () => d3.scaleLinear([coreFeelingRadius, leafFeelingRadius], [17, 14]),
+    () => d3.scaleLinear([coreFeelingRadius, leafFeelingRadius], [17, 15]),
     [coreFeelingRadius],
   );
 
-  // .slice(0, 2);
-
   const coreFeelingsPie = useMemo(
-    () => d3.pie<CoreFeelingDatum>().value((d) => d.angle)(coreFeelingsData),
-    [coreFeelingsData],
+    () =>
+      d3.pie<CoreFeelingDatum>().value((d, i) => d.angle)(
+        coreFeelingsData(feelings),
+      ),
+    [coreFeelingsData, feelings],
   );
 
-  const { paths, labels } = getFeelingPaths(coreFeelingsPie, {
-    radii: {
-      core: coreFeelingRadius,
-      secondary: secondaryFeelingRadius,
-      leaf: leafFeelingRadius,
-    },
-    fontScale,
-  });
+  const { paths, labels } = useMemo(
+    () =>
+      getFeelingPaths(coreFeelingsPie, {
+        radii: {
+          core: coreFeelingRadius,
+          secondary: secondaryFeelingRadius,
+          leaf: leafFeelingRadius,
+        },
+        fontScale,
+        fontColor: FEELINGS_FONT_COLORS[feelingsCategory],
+      }),
+    [coreFeelingsPie],
+  );
 
   useEffect(() => {
     if (!SVGRef.current || !gRef.current) return;
@@ -118,8 +133,9 @@ const FeelingsWheel = () => {
     const drag = d3
       .drag<SVGSVGElement, unknown>()
       .container(SVGRef.current!)
-      // .touchable(() => "ontouchstart" in (window as any) || navigator.maxTouchPoints > 0)
-      // .touchable(true)
+      .touchable(
+        () => "ontouchstart" in (window as any) || navigator.maxTouchPoints > 0,
+      )
       .on("start", handleDragStart)
       .on("drag", handleDrag)
       .on("end", (event) => {
@@ -156,7 +172,7 @@ const FeelingsWheel = () => {
           rotate(${rotation})
       `}
       >
-        <g fill="black">
+        <g>
           {paths}
           {labels}
         </g>

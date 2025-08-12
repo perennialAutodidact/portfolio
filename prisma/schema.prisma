@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
+}
+
+model CoreFeeling {
+  id                Int                @id @default(autoincrement())
+  name              String             @unique
+  category          String
+  secondaryFeelings SecondaryFeeling[]
+}
+
+model SecondaryFeeling {
+  id            Int           @id @default(autoincrement())
+  name          String        @unique
+  coreFeelingId Int
+  coreFeeling   CoreFeeling   @relation(fields: [coreFeelingId], references: [id])
+  leafFeelings  LeafFeeling[]
+}
+
+model LeafFeeling {
+  id                 Int              @id @default(autoincrement())
+  name               String           @unique
+  secondaryFeelingId Int
+  secondaryFeeling   SecondaryFeeling @relation(fields: [secondaryFeelingId], references: [id])
+}

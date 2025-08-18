@@ -10,7 +10,7 @@ import {
   FeelingsCategory,
 } from "@/ts/Feeling";
 
-export async function GET(req: NextRequest, res: NextResponse) {
+export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const colorTheme = searchParams.get("colorTheme");

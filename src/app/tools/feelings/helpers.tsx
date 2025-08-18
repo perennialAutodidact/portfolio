@@ -11,6 +11,7 @@ import {
 import { ReactElement } from "react";
 import { Fragment } from "react";
 import { ShapeRenderer } from "@/app/components/ShapeRenderer";
+import { Breakpoints } from "@/utilities/constants";
 
 const generateDistinctColors = (count: number): string[] => {
   const colors: string[] = [];
@@ -84,20 +85,32 @@ const generateLabels = <T extends { name: string }>(
   return labels;
 };
 
+const getFontSizesForBreakpoint = (breakpoint: Breakpoints) => {
+  const fontSizesByBreakpoint = {
+    XS: [16, 14],
+    SM: [18, 16],
+    MD: [20, 18],
+    LG: [22, 20],
+    XL: [24, 22],
+    XXL: [28, 26],
+  };
+  return fontSizesByBreakpoint[breakpoint];
+};
+
 const formatHSLString = ({ h, s, l }: ColorHSL) =>
   `hsl(${h}, ${s * 100}%, ${l * 100}%`;
 
-const getSVGMarginFromBreakpoint = (breakpoint: string) => {
-  let top = 30,
-    right = 5,
-    bottom = 30,
-    left = 5;
-  if (!["sm", "md"].includes(breakpoint)) {
-    right = 20;
-    left = 20;
-  }
+const getSVGMarginFromBreakpoint = (breakpoint: Breakpoints) => {
+  const marginsByBreakpoint = {
+    XS: { top: 30, right: 30, bottom: 30, left: 30 },
+    SM: { top: 30, right: 30, bottom: 30, left: 30 },
+    MD: { top: 30, right: 30, bottom: 30, left: 30 },
+    LG: { top: 30, right: 30, bottom: 30, left: 30 },
+    XL: { top: 30, right: 30, bottom: 30, left: 30 },
+    XXL: { top: 30, right: 30, bottom: 30, left: 30 },
+  };
 
-  return { top, left, bottom, right };
+  return marginsByBreakpoint[breakpoint];
 };
 
 const coreFeelingsData = (feelings: FeelingsWheelData): CoreFeelingDatum[] => {
@@ -168,6 +181,7 @@ const getFeelingPaths = (
 ) => {
   const { radii, fontScale, fontColor } = options;
   const squarePath = "M 10 10 H 110 V 110 H 10 V 110";
+  const arcGap = 2;
   const coreFeelingsArc = d3
     .arc<d3.PieArcDatum<CoreFeelingDatum>>()
     .innerRadius(0)
@@ -175,12 +189,12 @@ const getFeelingPaths = (
 
   const secondaryFeelingsArc = d3
     .arc<d3.PieArcDatum<SecondaryFeelingDatumWithLeaves>>()
-    .innerRadius(radii.core + 2)
+    .innerRadius(radii.core + arcGap)
     .outerRadius(radii.secondary);
 
   const leafFeelingsArc = d3
     .arc<d3.PieArcDatum<LeafFeelingDatum>>()
-    .innerRadius(radii.secondary + 2)
+    .innerRadius(radii.secondary + arcGap)
     .outerRadius(radii.leaf);
 
   const labels = generateLabels(
@@ -204,7 +218,7 @@ const getFeelingPaths = (
         y1={0}
         x2={x2}
         y2={y2}
-        strokeWidth={3}
+        strokeWidth={2}
         stroke={"#07213a"}
         key={coreSlice.endAngle}
       />,
@@ -325,4 +339,5 @@ export {
   generateLabels,
   getFeelingPaths,
   getSVGMarginFromBreakpoint,
+  getFontSizesForBreakpoint,
 };

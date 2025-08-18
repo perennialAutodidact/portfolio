@@ -1,11 +1,11 @@
 "use client";
 
 import { useMemo, useRef, useEffect, useState } from "react";
-import { useWindowSize } from "usehooks-ts";
 import * as d3 from "d3";
 import {
   coreFeelingsData,
   getFeelingPaths,
+  getFontSizesForBreakpoint,
   getSVGMarginFromBreakpoint,
 } from "./helpers";
 import { FEELINGS_FONT_COLORS } from "./utilities/constants";
@@ -15,21 +15,18 @@ import {
   FeelingsWheelData,
 } from "@/ts/Feeling";
 import useBreakpoint from "@/hooks/useBreakpoint";
+import useResizeObserver from "@/hooks/useResizeObserver";
 
 const FeelingsWheel = () => {
-  const { height = 0, width = 0 } = useWindowSize();
+  const { ref: SVGRef, height, width } = useResizeObserver();
   const breakpoint = useBreakpoint();
-  const SVGRef = useRef<SVGSVGElement | null>(null);
   const gRef = useRef<SVGGElement | null>(null);
   const [rotation, setRotation] = useState<number>(0);
   const [isDragging, setIsDragging] = useState<boolean>(false);
-  const dragStartDimensions = useRef({
-    height,
-    width,
-  });
+  const dragStartDimensions = useRef({ height, width });
   const [feelings, setFeelings] = useState<FeelingsWheelData | {}>({});
   const [feelingsCategory, setFeelingsCategory] =
-    useState<FeelingsCategory>("comfortable");
+    useState<FeelingsCategory>("uncomfortable");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -44,7 +41,6 @@ const FeelingsWheel = () => {
     fetchData();
   }, []);
 
-  const MARGIN = getSVGMarginFromBreakpoint(breakpoint);
   const SVGDimensions = useMemo(
     () =>
       isDragging
@@ -62,22 +58,37 @@ const FeelingsWheel = () => {
             height: Math.max(height, width),
             width: Math.max(height, width),
           },
-    [height, width],
+    [height, width, isDragging],
   );
-  const maxDim = Math.max(width, height);
-  const offsetX = (maxDim - width) / 2;
-  const offsetY = (maxDim - height) / 2 - 100;
 
-  const coreFeelingRadius = useMemo(
-    () => Math.min(width, height) / 5 - MARGIN.top / 2,
-    [width, height],
+  const maxDim = useMemo(() => Math.max(width, height), [height, width]);
+  const minDim = useMemo(() => Math.min(width, height), [height, width]);
+
+  const coreFeelingRadius = useMemo(() => {
+    const margins = getSVGMarginFromBreakpoint(breakpoint);
+    const radius =
+      (Math.max(height, width) - margins.top - margins.bottom) / 2 / 3;
+    console.log({ breakpoint, radius, width, height, minDim });
+    return radius;
+  }, [width, height, breakpoint]);
+
+  const secondaryFeelingRadius = useMemo(
+    () => coreFeelingRadius * 2,
+    [height, width, coreFeelingRadius],
   );
-  const secondaryFeelingRadius = coreFeelingRadius * 2;
-  const leafFeelingRadius = secondaryFeelingRadius * 1.5;
 
+  const leafFeelingRadius = useMemo(
+    () => secondaryFeelingRadius * 1.5,
+    [height, width, secondaryFeelingRadius],
+  );
+
+  const fontSizes = useMemo(
+    () => getFontSizesForBreakpoint(breakpoint),
+    [breakpoint],
+  );
   const fontScale = useMemo(
-    () => d3.scaleLinear([coreFeelingRadius, leafFeelingRadius], [17, 15]),
-    [coreFeelingRadius],
+    () => d3.scaleLinear([coreFeelingRadius, leafFeelingRadius], fontSizes),
+    [coreFeelingRadius, leafFeelingRadius, fontSizes],
   );
 
   const coreFeelingsPie = useMemo(
@@ -85,7 +96,7 @@ const FeelingsWheel = () => {
       d3.pie<CoreFeelingDatum>().value((d, i) => d.angle)(
         coreFeelingsData(feelings),
       ),
-    [coreFeelingsData, feelings],
+    [coreFeelingsData, feelings, height, width],
   );
 
   const { paths, labels } = useMemo(
@@ -106,30 +117,38 @@ const FeelingsWheel = () => {
     if (!SVGRef.current || !gRef.current) return;
 
     const svg = d3.select(SVGRef.current);
-    const center = {
-      x: SVGDimensions.width / 2,
-      y: SVGDimensions.height / 2,
-    };
 
     // track rotation across drags
-    const currentRotation = { value: rotation };
+    let startRotation = 0;
     let startAngle = 0;
 
     const handleDragStart = (event: any) => {
       const [x, y] = d3.pointer(event, SVGRef.current);
-      startAngle = Math.atan2(y - center.y, x - center.x);
+      startAngle = Math.atan2(y, x);
+      startRotation = rotation;
       setIsDragging(true);
     };
+
     const handleDrag = (event: any) => {
       const [x, y] = d3.pointer(event, SVGRef.current);
-      const currentAngle = Math.atan2(y - center.y, x - center.x);
-      const angleDiff = currentAngle - startAngle;
+      const currentAngle = Math.atan2(y, x);
+      let angleDiff = currentAngle - startAngle;
 
       const degrees = angleDiff * (180 / Math.PI);
-      const newRotation = currentRotation.value + degrees;
-
+      const newRotation = startRotation + degrees;
       setRotation(newRotation);
     };
+
+    const handleDragEnd = (event: any) => {
+      const [x, y] = d3.pointer(event, SVGRef.current);
+      const endAngle = Math.atan2(y, x);
+      let angleDiff = endAngle - startAngle;
+      if (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+      if (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+      startRotation += angleDiff * (180 / Math.PI);
+      setIsDragging(false);
+    };
+
     const drag = d3
       .drag<SVGSVGElement, unknown>()
       .container(SVGRef.current!)
@@ -138,40 +157,30 @@ const FeelingsWheel = () => {
       )
       .on("start", handleDragStart)
       .on("drag", handleDrag)
-      .on("end", (event) => {
-        const [x, y] = d3.pointer(event, SVGRef.current);
-        const endAngle = Math.atan2(y - center.y, x - center.x);
-        const angleDiff = endAngle - startAngle;
-
-        currentRotation.value += angleDiff * (180 / Math.PI);
-        setIsDragging(false);
-      });
+      .on("end", handleDragEnd);
 
     svg.call(drag);
-  }, [SVGDimensions, rotation]);
+
+    return () => {
+      svg.on(".drag", null);
+    };
+  }, [SVGDimensions.height, SVGDimensions.width, rotation, isDragging]);
 
   return (
     <svg
       ref={SVGRef}
-      viewBox={`0 0 ${maxDim} ${maxDim}`}
+      viewBox={`${-maxDim / 2} ${-maxDim / 2} ${maxDim} ${maxDim}`}
+      preserveAspectRatio="xMidYMid meet"
       style={{
         transformOrigin: "50% 50%",
-        height: "max(100vh, 100vw)",
-        width: "max(100vh, 100vw)",
+        height: "100%",
+        width: "100%",
         position: "relative",
-        top: -offsetY,
-        left: -offsetX,
         touchAction: "none",
         userSelect: "none",
       }}
     >
-      <g
-        ref={gRef}
-        transform={`
-          translate(${SVGDimensions.width / 2}, ${SVGDimensions.height / 2})
-          rotate(${rotation})
-      `}
-      >
+      <g ref={gRef} transform={`rotate(${rotation})`}>
         <g>
           {paths}
           {labels}

@@ -1,8 +1,6 @@
 import React from "react";
 import type { Metadata } from "next";
-import { initializeApp } from "firebase/app";
 import { Inter } from "next/font/google";
-import { getAuth } from "firebase/auth";
 import AllProviders from "@/app/components/providers/AllProviders";
 import "./globals.scss";
 
@@ -21,7 +19,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head title="Keegan Good. Perennial Autodidact. Always Learning." />
+      <head title="Keegan Good. Perennial Autodidact. Always Learning.">
+        <meta name="viewport" content="width=device-width" />
+      </head>
       <body className={inter.className}>
         <AllProviders>{children}</AllProviders>
       </body>

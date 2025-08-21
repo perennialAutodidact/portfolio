@@ -15,6 +15,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
+    "jsxImportSource": "react",
     "incremental": true,
     "plugins": [
       {
@@ -38,10 +39,12 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
+    "**/*.ts", "**/*.d.ts",
     ".next/types/**/*.ts",
     "prisma/feelings/schema.prisma",
     "src/app/tools/feelings/data/parseFeelings.mts"
   ],
+  "types": ["react", "react-dom"],
   "exclude": [
     "node_modules"
   ]

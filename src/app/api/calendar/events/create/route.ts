@@ -1,7 +1,4 @@
-import { NextApiHandler } from "next";
-import type { IcsEvent } from "ts-ics";
 import { parseIcsCalendar } from "@ts-ics/schema-zod";
-import { promises } from "fs";
 import { google, calendar_v3 } from "googleapis";
 import { auth, EnrichedSession } from "~/auth";
 import { oauth2Client } from "@/app/api/auth/oauth2Client";

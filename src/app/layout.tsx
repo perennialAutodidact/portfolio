@@ -23,7 +23,9 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width" />
       </head>
       <body className={inter.className}>
-        <AllProviders>{children}</AllProviders>
+        <>
+          <AllProviders>{children}</AllProviders>
+        </>
       </body>
     </html>
   );

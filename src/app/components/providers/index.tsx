@@ -1,6 +1,5 @@
-import AllProviders from './AllProviders'
-import AnimationProvider from './AnimationProvider'
-import ChakraUIProvider from './ChakraUIProvider'
+import AllProviders from "./AllProviders";
+import AnimationProvider from "./AnimationProvider";
 
-export default { AllProviders, AnimationProvider, ChakraUIProvider }
-
+const providers = { AllProviders, AnimationProvider };
+export default providers;

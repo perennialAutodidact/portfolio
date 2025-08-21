@@ -1,3 +1,4 @@
+"use client";
 import React, { createContext, useRef } from "react";
 import gsap from "gsap";
 

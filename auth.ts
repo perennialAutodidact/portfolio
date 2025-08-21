@@ -32,6 +32,7 @@ export const { handlers, auth } = NextAuth({
   ],
   basePath: "/api/auth",
   callbacks: {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     authorized({ request, auth }) {
       return !!auth;
     },

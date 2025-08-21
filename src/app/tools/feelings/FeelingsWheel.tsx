@@ -24,7 +24,8 @@ const FeelingsWheel = () => {
   const [rotation, setRotation] = useState<number>(0);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const dragStartDimensions = useRef({ height, width });
-  const [feelings, setFeelings] = useState<FeelingsWheelData | {}>({});
+  const [feelings, setFeelings] = useState<FeelingsWheelData | null>();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [feelingsCategory, setFeelingsCategory] =
     useState<FeelingsCategory>("uncomfortable");
 
@@ -39,7 +40,7 @@ const FeelingsWheel = () => {
       setFeelings(data);
     };
     fetchData();
-  }, []);
+  }, [feelingsCategory]);
 
   const SVGDimensions = useMemo(
     () =>
@@ -62,24 +63,22 @@ const FeelingsWheel = () => {
   );
 
   const maxDim = useMemo(() => Math.max(width, height), [height, width]);
-  const minDim = useMemo(() => Math.min(width, height), [height, width]);
+  // const minDim = useMemo(() => Math.min(width, height), [height, width]);
 
   const coreFeelingRadius = useMemo(() => {
     const margins = getSVGMarginFromBreakpoint(breakpoint);
-    const radius =
-      (Math.max(height, width) - margins.top - margins.bottom) / 2 / 3;
-    console.log({ breakpoint, radius, width, height, minDim });
+    const radius = (maxDim - margins.top - margins.bottom) / 2 / 3;
     return radius;
-  }, [width, height, breakpoint]);
+  }, [breakpoint, maxDim]);
 
   const secondaryFeelingRadius = useMemo(
     () => coreFeelingRadius * 2,
-    [height, width, coreFeelingRadius],
+    [coreFeelingRadius],
   );
 
   const leafFeelingRadius = useMemo(
     () => secondaryFeelingRadius * 1.5,
-    [height, width, secondaryFeelingRadius],
+    [secondaryFeelingRadius],
   );
 
   const fontSizes = useMemo(
@@ -93,24 +92,35 @@ const FeelingsWheel = () => {
 
   const coreFeelingsPie = useMemo(
     () =>
-      d3.pie<CoreFeelingDatum>().value((d, i) => d.angle)(
-        coreFeelingsData(feelings),
-      ),
-    [coreFeelingsData, feelings, height, width],
+      !feelings
+        ? null
+        : d3.pie<CoreFeelingDatum>().value((d) => d.angle)(
+            coreFeelingsData(feelings),
+          ),
+    [feelings],
   );
 
   const { paths, labels } = useMemo(
     () =>
-      getFeelingPaths(coreFeelingsPie, {
-        radii: {
-          core: coreFeelingRadius,
-          secondary: secondaryFeelingRadius,
-          leaf: leafFeelingRadius,
-        },
-        fontScale,
-        fontColor: FEELINGS_FONT_COLORS[feelingsCategory],
-      }),
-    [coreFeelingsPie],
+      !coreFeelingsPie
+        ? { paths: null, labels: null }
+        : getFeelingPaths(coreFeelingsPie, {
+            radii: {
+              core: coreFeelingRadius,
+              secondary: secondaryFeelingRadius,
+              leaf: leafFeelingRadius,
+            },
+            fontScale,
+            fontColor: FEELINGS_FONT_COLORS[feelingsCategory],
+          }),
+    [
+      coreFeelingsPie,
+      coreFeelingRadius,
+      secondaryFeelingRadius,
+      leafFeelingRadius,
+      feelingsCategory,
+      fontScale,
+    ],
   );
 
   useEffect(() => {
@@ -132,7 +142,7 @@ const FeelingsWheel = () => {
     const handleDrag = (event: any) => {
       const [x, y] = d3.pointer(event, SVGRef.current);
       const currentAngle = Math.atan2(y, x);
-      let angleDiff = currentAngle - startAngle;
+      const angleDiff = currentAngle - startAngle;
 
       const degrees = angleDiff * (180 / Math.PI);
       const newRotation = startRotation + degrees;
@@ -164,7 +174,7 @@ const FeelingsWheel = () => {
     return () => {
       svg.on(".drag", null);
     };
-  }, [SVGDimensions.height, SVGDimensions.width, rotation, isDragging]);
+  }, [SVGDimensions.height, SVGDimensions.width, SVGRef, rotation, isDragging]);
 
   return (
     <svg

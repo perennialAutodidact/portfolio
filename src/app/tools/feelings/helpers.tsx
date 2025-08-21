@@ -34,9 +34,8 @@ const generateLabels = <T extends { name: string }>(
   fontColor: string,
 ) => {
   const getLabelAngleDegrees = (feeling: d3.PieArcDatum<T>) => {
-    const [x, y] = feelingsArc.centroid(feeling);
     const angle = (feeling.startAngle + feeling.endAngle) / 2;
-    let degrees = (angle * 180) / Math.PI;
+    const degrees = (angle * 180) / Math.PI;
     return degrees;
   };
   const getQuadrant = (degrees: number) => {
@@ -46,13 +45,12 @@ const generateLabels = <T extends { name: string }>(
     else if (degrees >= 270 && degrees < 360) return 4;
   };
 
-  const labels = feelingsPie.map((slice, i, slices) => {
-    let degrees = getLabelAngleDegrees(slice);
+  const labels = feelingsPie.map((slice) => {
+    const degrees = getLabelAngleDegrees(slice);
     const quadrant = getQuadrant(degrees);
     const [x, y] = feelingsArc.centroid(slice);
-    let textAnchor = "start";
-    let labelX = x;
-    let labelY = y;
+    const labelX = x;
+    const labelY = y;
     let rotation = degrees;
     const labelFontSize = radius;
 
@@ -61,7 +59,6 @@ const generateLabels = <T extends { name: string }>(
     // flip half the labels for readability
     if (quadrant === 3 || quadrant === 4) {
       rotation -= 180;
-      textAnchor = "end";
     }
 
     const style = {
@@ -115,10 +112,10 @@ const getSVGMarginFromBreakpoint = (breakpoint: Breakpoints) => {
 
 const coreFeelingsData = (feelings: FeelingsWheelData): CoreFeelingDatum[] => {
   return Object.entries(feelings).map(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ([key, feeling]: [string, CoreFeeling]): CoreFeelingDatum => {
-      ({ feeling, secondary: feeling.secondaryFeelings });
       const rawSecondaryFeelingsData = feeling.secondaryFeelings.flatMap(
-        (secondaryFeeling, i) => {
+        (secondaryFeeling) => {
           return {
             name: secondaryFeeling.name,
             color: secondaryFeeling.color,
@@ -180,7 +177,7 @@ const getFeelingPaths = (
   },
 ) => {
   const { radii, fontScale, fontColor } = options;
-  const squarePath = "M 10 10 H 110 V 110 H 10 V 110";
+  // const squarePath = "M 10 10 H 110 V 110 H 10 V 110";
   const arcGap = 2;
   const coreFeelingsArc = d3
     .arc<d3.PieArcDatum<CoreFeelingDatum>>()
@@ -225,7 +222,7 @@ const getFeelingPaths = (
     );
 
     const secondaryFeelingsPieWithAngleOffsets =
-      coreSlice.data.secondaryFeelingsPie.map((secondaryFeelingSlice, i) => {
+      coreSlice.data.secondaryFeelingsPie.map((secondaryFeelingSlice) => {
         const subStart =
           coreSlice.startAngle +
           (secondaryFeelingSlice.startAngle / (2 * Math.PI)) * angleRange;
@@ -273,7 +270,7 @@ const getFeelingPaths = (
           });
 
         const leafFeelingPaths = leafFeelingsWithAngleOffsets.map(
-          (leafFeelingSlice, index) => {
+          (leafFeelingSlice) => {
             // const leafFeelingPath =
             //   index === 0 ? squarePath : leafFeelingsArc(leafFeelingSlice);
             const leafFeelingPath = leafFeelingsArc(leafFeelingSlice);

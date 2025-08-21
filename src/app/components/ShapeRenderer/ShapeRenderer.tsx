@@ -1,6 +1,6 @@
+"use client";
 import { interpolate } from "flubber";
 import { animated, useSpring, config, to } from "react-spring";
-import * as d3 from "d3";
 import { useMemo, useRef } from "react";
 
 type ShapeRendererProps = {

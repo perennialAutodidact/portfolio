@@ -186,7 +186,6 @@ const FeelingsWheel = () => {
         height: "100%",
         width: "100%",
         position: "relative",
-        touchAction: "none",
         userSelect: "none",
       }}
     >

@@ -189,10 +189,24 @@ const FeelingsWheel = () => {
         event.preventDefault();
       });
 
+    const zoomed = ({ transform }: any) => {
+      svg.attr("transform", transform);
+    };
+
+    const zoom = d3.zoom().on("zoom", zoomed);
+
+    svg.call(zoom as any);
     return () => {
       svg.on(".drag", null);
     };
-  }, [SVGDimensions.height, SVGDimensions.width, SVGRef, rotation, isDragging]);
+  }, [
+    SVGDimensions.height,
+    SVGDimensions.width,
+    SVGRef,
+    rotation,
+    isDragging,
+    getEventCoords,
+  ]);
 
   return (
     <svg

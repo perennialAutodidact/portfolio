@@ -122,6 +122,12 @@ const FeelingsWheel = () => {
       fontScale,
     ],
   );
+  const getEventCoords = (event: any) => {
+    const e = event.type.includes("touch")
+      ? event.touches[0] || event.changedTouches[0]
+      : event;
+    return d3.pointer(e, SVGRef.current);
+  };
 
   useEffect(() => {
     if (!SVGRef.current || !gRef.current) return;
@@ -133,14 +139,14 @@ const FeelingsWheel = () => {
     let startAngle = 0;
 
     const handleDragStart = (event: any) => {
-      const [x, y] = d3.pointer(event, SVGRef.current);
+      const [x, y] = getEventCoords(event);
       startAngle = Math.atan2(y, x);
       startRotation = rotation;
       setIsDragging(true);
     };
 
     const handleDrag = (event: any) => {
-      const [x, y] = d3.pointer(event, SVGRef.current);
+      const [x, y] = getEventCoords(event);
       const currentAngle = Math.atan2(y, x);
       const angleDiff = currentAngle - startAngle;
 
@@ -150,26 +156,38 @@ const FeelingsWheel = () => {
     };
 
     const handleDragEnd = (event: any) => {
-      const [x, y] = d3.pointer(event, SVGRef.current);
+      const [x, y] = getEventCoords(event);
       const endAngle = Math.atan2(y, x);
       let angleDiff = endAngle - startAngle;
       if (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
       if (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
-      startRotation += angleDiff * (180 / Math.PI);
+      const degrees = angleDiff * (180 / Math.PI);
+      const newRotation = startRotation + degrees;
       setIsDragging(false);
+      setRotation(newRotation);
     };
 
     const drag = d3
       .drag<SVGSVGElement, unknown>()
       .container(SVGRef.current!)
-      .touchable(
-        () => "ontouchstart" in (window as any) || navigator.maxTouchPoints > 0,
-      )
       .on("start", handleDragStart)
       .on("drag", handleDrag)
       .on("end", handleDragEnd);
 
     svg.call(drag);
+    svg
+      .on("touchstart", function (event) {
+        handleDragStart(event);
+        event.preventDefault();
+      })
+      .on("touchmove", function (event) {
+        handleDrag(event);
+        event.preventDefault();
+      })
+      .on("touchend", (event) => {
+        handleDragEnd(event);
+        event.preventDefault();
+      });
 
     return () => {
       svg.on(".drag", null);

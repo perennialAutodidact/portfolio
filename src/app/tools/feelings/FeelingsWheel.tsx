@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useEffect, useState } from "react";
+import { useCallback, useMemo, useRef, useEffect, useState } from "react";
 import * as d3 from "d3";
 import {
   coreFeelingsData,
@@ -122,12 +122,16 @@ const FeelingsWheel = () => {
       fontScale,
     ],
   );
-  const getEventCoords = (event: any) => {
-    const e = event.type.includes("touch")
-      ? event.touches[0] || event.changedTouches[0]
-      : event;
-    return d3.pointer(e, SVGRef.current);
-  };
+  const getEventCoords = useCallback(
+    (event: any) => {
+      const e = event.type.includes("touch")
+        ? event.touches[0] || event.changedTouches[0]
+        : event;
+
+      return d3.pointer(e, SVGRef.current);
+    },
+    [SVGRef],
+  );
 
   useEffect(() => {
     if (!SVGRef.current || !gRef.current) return;
@@ -152,24 +156,18 @@ const FeelingsWheel = () => {
 
       const degrees = angleDiff * (180 / Math.PI);
       const newRotation = startRotation + degrees;
+
       setRotation(newRotation);
     };
 
-    const handleDragEnd = (event: any) => {
-      const [x, y] = getEventCoords(event);
-      const endAngle = Math.atan2(y, x);
-      let angleDiff = endAngle - startAngle;
-      if (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
-      if (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
-      const degrees = angleDiff * (180 / Math.PI);
-      const newRotation = startRotation + degrees;
+    const handleDragEnd = () => {
       setIsDragging(false);
-      setRotation(newRotation);
     };
 
     const drag = d3
       .drag<SVGSVGElement, unknown>()
       .container(SVGRef.current!)
+      // .touchable(true)
       .on("start", handleDragStart)
       .on("drag", handleDrag)
       .on("end", handleDragEnd);
@@ -177,16 +175,16 @@ const FeelingsWheel = () => {
     svg.call(drag);
     svg
       .on("touchstart", function (event) {
-        handleDragStart(event);
         event.preventDefault();
+        handleDragStart(event);
       })
       .on("touchmove", function (event) {
-        handleDrag(event);
         event.preventDefault();
+        handleDrag(event);
       })
       .on("touchend", (event) => {
-        handleDragEnd(event);
         event.preventDefault();
+        handleDragEnd();
       });
 
     const zoomed = ({ transform }: any) => {
@@ -195,7 +193,11 @@ const FeelingsWheel = () => {
 
     const zoom = d3.zoom().on("zoom", zoomed);
 
-    svg.call(zoom as any);
+    svg
+      .transition()
+      .duration(500)
+      .call(zoom.transform as any, d3.zoomIdentity);
+
     return () => {
       svg.on(".drag", null);
     };
@@ -203,9 +205,8 @@ const FeelingsWheel = () => {
     SVGDimensions.height,
     SVGDimensions.width,
     SVGRef,
-    rotation,
-    isDragging,
     getEventCoords,
+    rotation,
   ]);
 
   return (

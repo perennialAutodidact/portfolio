@@ -167,7 +167,7 @@ const FeelingsWheel = () => {
     const drag = d3
       .drag<SVGSVGElement, unknown>()
       .container(SVGRef.current!)
-      // .touchable(true)
+      .touchable(true)
       .on("start", handleDragStart)
       .on("drag", handleDrag)
       .on("end", handleDragEnd);

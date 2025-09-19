@@ -173,19 +173,6 @@ const FeelingsWheel = () => {
       .on("end", handleDragEnd);
 
     svg.call(drag);
-    svg
-      .on("touchstart", function (event) {
-        event.preventDefault();
-        handleDragStart(event);
-      })
-      .on("touchmove", function (event) {
-        event.preventDefault();
-        handleDrag(event);
-      })
-      .on("touchend", (event) => {
-        event.preventDefault();
-        handleDragEnd();
-      });
 
     const zoomed = ({ transform }: any) => {
       svg.attr("transform", transform);

@@ -38,6 +38,7 @@ const generateLabels = <T extends { name: string }>(
     const degrees = (angle * 180) / Math.PI;
     return degrees;
   };
+
   const getQuadrant = (degrees: number) => {
     if (degrees >= 0 && degrees < 90) return 1;
     else if (degrees >= 90 && degrees < 180) return 2;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useEffect, useState } from "react";
+import { useMemo, useRef, useEffect, useState } from "react";
 import * as d3 from "d3";
 import {
   coreFeelingsData,
@@ -20,8 +20,9 @@ import useResizeObserver from "@/hooks/useResizeObserver";
 const FeelingsWheel = () => {
   const { ref: SVGRef, height, width } = useResizeObserver();
   const breakpoint = useBreakpoint();
-  const gRef = useRef<SVGGElement | null>(null);
+  const gRef = useRef<SVGGElement>(null);
   const [rotation, setRotation] = useState<number>(0);
+  const rotationRef = useRef<number>(0);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const dragStartDimensions = useRef({ height, width });
   const [feelings, setFeelings] = useState<FeelingsWheelData | null>();
@@ -41,26 +42,6 @@ const FeelingsWheel = () => {
     };
     fetchData();
   }, [feelingsCategory]);
-
-  const SVGDimensions = useMemo(
-    () =>
-      isDragging
-        ? {
-            height: Math.max(
-              dragStartDimensions.current.width,
-              dragStartDimensions.current.height,
-            ),
-            width: Math.max(
-              dragStartDimensions.current.width,
-              dragStartDimensions.current.height,
-            ),
-          }
-        : {
-            height: Math.max(height, width),
-            width: Math.max(height, width),
-          },
-    [height, width, isDragging],
-  );
 
   const maxDim = useMemo(() => Math.max(width, height), [height, width]);
   // const minDim = useMemo(() => Math.min(width, height), [height, width]);
@@ -122,79 +103,81 @@ const FeelingsWheel = () => {
       fontScale,
     ],
   );
-  const getEventCoords = useCallback(
-    (event: any) => {
-      const e = event.type.includes("touch")
-        ? event.touches[0] || event.changedTouches[0]
-        : event;
-
-      return d3.pointer(e, SVGRef.current);
-    },
-    [SVGRef],
-  );
 
   useEffect(() => {
-    if (!SVGRef.current || !gRef.current) return;
+    if (!SVGRef.current || !gRef.current || !gRef.current) return;
+    // if (!gRef.current) return;
 
-    const svg = d3.select(SVGRef.current);
+    const svg: d3.Selection<SVGSVGElement, unknown, null, undefined> =
+      d3.select(SVGRef.current);
+    const g: d3.Selection<SVGGElement, unknown, null, undefined> = d3.select(
+      gRef.current,
+    );
 
     // track rotation across drags
-    let startRotation = 0;
     let startAngle = 0;
+    let startRotation = 0;
 
-    const handleDragStart = (event: any) => {
-      const [x, y] = getEventCoords(event);
-      startAngle = Math.atan2(y, x);
-      startRotation = rotation;
-      setIsDragging(true);
+    const handleDragStart = (
+      event: d3.D3DragEvent<SVGGElement, unknown, unknown>,
+    ) => {
+      startAngle = Math.atan2(event.y, event.x);
+      startRotation = rotationRef.current;
     };
 
-    const handleDrag = (event: any) => {
-      const [x, y] = getEventCoords(event);
-      const currentAngle = Math.atan2(y, x);
-      const angleDiff = currentAngle - startAngle;
-
-      const degrees = angleDiff * (180 / Math.PI);
-      const newRotation = startRotation + degrees;
-
-      setRotation(newRotation);
+    const handleDrag = (
+      event: d3.D3DragEvent<SVGGElement, unknown, unknown>,
+    ) => {
+      const angle = Math.atan2(event.y, event.x);
+      const delta = angle - startAngle;
+      const nextRotation = startRotation + (delta * 180) / Math.PI;
+      setRotation(nextRotation);
+      rotationRef.current = nextRotation;
     };
 
-    const handleDragEnd = () => {
-      setIsDragging(false);
-    };
+    // const handleDragEnd = () => {
+    //   setIsDragging(false);
+    // };
 
     const drag = d3
-      .drag<SVGSVGElement, unknown>()
+      .drag<SVGGElement, unknown, unknown>()
       .container(SVGRef.current!)
-      .touchable(true)
       .on("start", handleDragStart)
-      .on("drag", handleDrag)
-      .on("end", handleDragEnd);
+      .on("drag", handleDrag);
+    // .on("end", handleDragEnd);
 
-    svg.call(drag);
+    g.call(drag);
 
     const zoomed = ({ transform }: any) => {
       svg.attr("transform", transform);
     };
 
-    const zoom = d3.zoom().on("zoom", zoomed);
+    const isTouchEvent = (
+      event: PointerEvent | WheelEvent | TouchEvent,
+    ): event is TouchEvent => {
+      return "touches" in event;
+    };
 
-    svg
-      .transition()
-      .duration(500)
-      .call(zoom.transform as any, d3.zoomIdentity);
+    const zoomFilter = (event: PointerEvent | WheelEvent | TouchEvent) => {
+      console.log(event, isTouchEvent(event));
+      if (isTouchEvent(event) && event.touches.length > 1) {
+        return true;
+      }
+      if (event instanceof WheelEvent || event instanceof TouchEvent)
+        return true;
+      return false;
+    };
+
+    // const zoom = d3.zoom().on("zoom", zoomed).filter(zoomFilter);
+
+    g.transition().duration(1000);
+    // .call(zoom.transform as any, d3.zoomIdentity);
 
     return () => {
-      svg.on(".drag", null);
+      g.on(".drag", null);
+      g.on(".zoom", null);
     };
-  }, [
-    SVGDimensions.height,
-    SVGDimensions.width,
-    SVGRef,
-    getEventCoords,
-    rotation,
-  ]);
+  }, [SVGRef]);
 
   return (
     <svg
@@ -207,6 +190,7 @@ const FeelingsWheel = () => {
         width: "100%",
         position: "relative",
         userSelect: "none",
+        touchAction: "none",
       }}
     >
       <g ref={gRef} transform={`rotate(${rotation})`}>

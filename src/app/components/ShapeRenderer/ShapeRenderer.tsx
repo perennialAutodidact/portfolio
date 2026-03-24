@@ -2,13 +2,21 @@
 import { interpolate } from "flubber";
 import { animated, useSpring, config, to } from "react-spring";
 import { useMemo, useRef } from "react";
+import { AnimationEventHandler } from "react";
 
 type ShapeRendererProps = {
   path: string;
   color: string;
+  animationStartHandler?: AnimationEventHandler<SVGPathElement>;
+  animationEndHandler?: AnimationEventHandler<SVGPathElement>;
 };
 
-export const ShapeRenderer = ({ path, color }: ShapeRendererProps) => {
+export const ShapeRenderer = ({
+  path,
+  color,
+  animationStartHandler,
+  animationEndHandler,
+}: ShapeRendererProps) => {
   // keep track of last used pathD to interpolate from
   const currD = useRef(path);
 
@@ -39,6 +47,8 @@ export const ShapeRenderer = ({ path, color }: ShapeRendererProps) => {
       stroke="black"
       fill={color}
       strokeWidth={1}
+      onAnimationStart={animationStartHandler}
+      onAnimationEnd={animationEndHandler}
     />
   );
 };

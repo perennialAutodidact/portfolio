@@ -23,8 +23,7 @@ const FeelingsWheel = () => {
   const gRef = useRef<SVGGElement>(null);
   const [rotation, setRotation] = useState<number>(0);
   const rotationRef = useRef<number>(0);
-  const [isDragging, setIsDragging] = useState<boolean>(false);
-  const dragStartDimensions = useRef({ height, width });
+  const zoomRef = useRef<SVGGElement>(null);
   const [feelings, setFeelings] = useState<FeelingsWheelData | null>();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [feelingsCategory, setFeelingsCategory] =
@@ -44,7 +43,6 @@ const FeelingsWheel = () => {
   }, [feelingsCategory]);
 
   const maxDim = useMemo(() => Math.max(width, height), [height, width]);
-  // const minDim = useMemo(() => Math.min(width, height), [height, width]);
 
   const coreFeelingRadius = useMemo(() => {
     const margins = getSVGMarginFromBreakpoint(breakpoint);
@@ -104,6 +102,7 @@ const FeelingsWheel = () => {
     ],
   );
 
+  // handle drag
   useEffect(() => {
     if (!SVGRef.current || !gRef.current || !gRef.current) return;
     // if (!gRef.current) return;
@@ -131,52 +130,57 @@ const FeelingsWheel = () => {
       const angle = Math.atan2(event.y, event.x);
       const delta = angle - startAngle;
       const nextRotation = startRotation + (delta * 180) / Math.PI;
-      setRotation(nextRotation);
       rotationRef.current = nextRotation;
+      g.attr("transform", `rotate(${nextRotation})`);
     };
 
-    // const handleDragEnd = () => {
-    //   setIsDragging(false);
-    // };
+    const handleDragEnd = () => {
+      setRotation(rotationRef.current);
+    };
 
     const drag = d3
       .drag<SVGGElement, unknown, unknown>()
       .container(SVGRef.current!)
       .on("start", handleDragStart)
-      .on("drag", handleDrag);
-    // .on("end", handleDragEnd);
+      .on("drag", handleDrag)
+      .on("end", handleDragEnd);
 
     g.call(drag);
 
-    const zoomed = ({ transform }: any) => {
-      svg.attr("transform", transform);
+    return () => {
+      g.on(".drag", null);
     };
+  }, [SVGRef]);
 
-    const isTouchEvent = (
-      event: PointerEvent | WheelEvent | TouchEvent,
-    ): event is TouchEvent => {
-      return "touches" in event;
-    };
+  // handle zoom
+  useEffect(() => {
+    if (!SVGRef.current) return () => {};
 
-    const zoomFilter = (event: PointerEvent | WheelEvent | TouchEvent) => {
-      console.log(event, isTouchEvent(event));
-      if (isTouchEvent(event) && event.touches.length > 1) {
-        return true;
-      }
-      if (event instanceof WheelEvent || event instanceof TouchEvent)
-        return true;
+    const svg: d3.Selection<SVGSVGElement, unknown, null, undefined> =
+      d3.select(SVGRef.current);
+
+    const zoomFilter = (event: WheelEvent | TouchEvent) => {
+      // allow wheel zoom
+      if (event instanceof WheelEvent) return true;
+
+      // allow pinch (2+ touches)
+      if (event instanceof TouchEvent) return event.touches.length > 1;
+
       return false;
     };
 
-    // const zoom = d3.zoom().on("zoom", zoomed).filter(zoomFilter);
+    const zoom = d3
+      .zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.5, 4])
+      .filter(zoomFilter)
+      .on("zoom", (event) => {
+        svg.attr("transform", event.transform.toString());
+      });
 
-    g.transition().duration(1000);
-    // .call(zoom.transform as any, d3.zoomIdentity);
+    // svg.call(zoom);
+    svg.call(zoom.transform as any, d3.zoomIdentity);
 
-    return () => {
-      g.on(".drag", null);
-      g.on(".zoom", null);
-    };
+    return () => svg.on(".zoom", null);
   }, [SVGRef]);
 
   return (
@@ -193,10 +197,12 @@ const FeelingsWheel = () => {
         touchAction: "none",
       }}
     >
-      <g ref={gRef} transform={`rotate(${rotation})`}>
-        <g>
-          {paths}
-          {labels}
+      <g ref={zoomRef}>
+        <g ref={gRef}>
+          <g>
+            {paths}
+            {labels}
+          </g>
         </g>
       </g>
     </svg>

@@ -1,5 +1,5 @@
 import js from "@eslint/js";
-// import globals from "globals";
+import globals from "globals";
 import tseslint from "typescript-eslint";
 import pluginReact from "eslint-plugin-react";
 import css from "@eslint/css";
@@ -35,4 +35,11 @@ export default [
   {
     ignores: ["prisma/**", "node_modules/**", ".next/**", "dist/**"],
   },
+  {
+    languageOptions: {
+      ...globals.browser,
+      ...globals.node,
+      ...globals.es2021,
+    }
+  }
 ];

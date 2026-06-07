@@ -21,6 +21,7 @@ const FeelingsWheel = () => {
   const { ref: SVGRef, height, width } = useResizeObserver();
   const breakpoint = useBreakpoint();
   const gRef = useRef<SVGGElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [rotation, setRotation] = useState<number>(0);
   const rotationRef = useRef<number>(0);
   const zoomRef = useRef<SVGGElement>(null);
@@ -107,6 +108,7 @@ const FeelingsWheel = () => {
     if (!SVGRef.current || !gRef.current || !gRef.current) return;
     // if (!gRef.current) return;
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const svg: d3.Selection<SVGSVGElement, unknown, null, undefined> =
       d3.select(SVGRef.current);
     const g: d3.Selection<SVGGElement, unknown, null, undefined> = d3.select(

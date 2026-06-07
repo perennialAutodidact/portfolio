@@ -15,7 +15,7 @@ export default [
     plugins: {
       react: pluginReact,
       "react-hooks": pluginReactHooks,
-      next: pluginNext,
+      "@next/next": pluginNext,
       "jsx-a11y": pluginJsxA11y,
       css,
     },

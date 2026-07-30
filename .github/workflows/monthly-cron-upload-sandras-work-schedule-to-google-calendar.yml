@@ -4,7 +4,7 @@ on:
   schedule:
     # Runs at 00:00, on day 1 of the month
     - cron: '0 0 1 * *'
-
+  workflow_dispatch:
 jobs:
   ping-vercel:
     runs-on: ubuntu-latest

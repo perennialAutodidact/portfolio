@@ -14,5 +14,5 @@ jobs:
           CRON_URL: ${{ secrets.VERCEL_CRON_URL_UPLOAD_WORK_SCHEDULE }}
           CRON_SECRET: ${{ secrets.VERCEL_CRON_SECRET }}
         run: |
-          curl -X GET "$CRON_URL" \
+          curl -fsS -X GET "$CRON_URL" \
           -H "Authorization: Bearer $CRON_SECRET" 

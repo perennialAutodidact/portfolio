@@ -162,7 +162,7 @@ async function uploadScheduleToCalendar(calendar, schedule, auth) {
 const sendEmail = async ({ subject, html }) => {
   await emailTransporter.sendMail({
     from: process.env.GMAIL_USERNAME_GOOD_FAMILY,
-    to: process.env.GMAIL_PASSWORD_GOOD_FAMILY,
+    to: process.env.GMAIL_USERNAME_GOOD_FAMILY,
     subject,
     html,
   })

@@ -121,7 +121,7 @@ async function createEvent(calendar, { startTime, endTime, note }) {
 
 async function fetchSchedulePdfFromDrive(drive) {
   const result = await drive.files.list({
-    q: `name=${scheduleFilename}`,
+    q: `name='${scheduleFilename}'`,
     spaces: 'drive',
     fields: 'files(id, name)',
   });
